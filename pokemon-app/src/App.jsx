@@ -16,7 +16,11 @@ function App() {
     weight: 69,
   });
   const [filter, setFilter] = useState(pokemon);
-  const [searchInput, setSearchInput] = useState("")
+  const [searchInput, setSearchInput] = useState("");
+  const [filterGrass, setFilterGrass] = useState(false)
+  const [filterFire, setFilterFire] = useState(false)
+  const [filterWater, setFilterWater] = useState(false)
+
 
   async function fetchData() {
     for (let i = 1; i < 150; i++) {
@@ -29,7 +33,7 @@ function App() {
       let newTypes = types.map((data) => {
         return data.type.name;
       });
-      let key = generateUniqueKey()
+      let key = generateUniqueKey();
       let pokemonObject = {
         name: name,
         types: newTypes,
@@ -50,10 +54,10 @@ function App() {
   }, []);
 
   function consolePokemon(key) {
-    let select = findObjectByKey(pokemon, 'id', key);
-    console.log(select.hp)
-    console.log(select.attack)
-    console.log(select.defense)
+    let select = findObjectByKey(pokemon, "id", key);
+    console.log(select.hp);
+    console.log(select.attack);
+    console.log(select.defense);
     setSelectedPokemon(select);
   }
 
@@ -62,32 +66,73 @@ function App() {
   }
 
   function findObjectByKey(array, key, value) {
-    return array.find(obj => obj[key] === value);
+    return array.find((obj) => obj[key] === value);
   }
 
   function generateUniqueKey() {
     const keyLength = 10;
-    const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
-    let key = '';
-  
+    const characters = "abcdefghijklmnopqrstuvwxyz0123456789";
+    let key = "";
+
     for (let i = 0; i < keyLength; i++) {
       const randomIndex = Math.floor(Math.random() * characters.length);
       key += characters[randomIndex];
     }
-  
+
     return key;
   }
 
-  const searchItems = searchValue => {
+  const searchItems = (searchValue) => {
     setSearchInput(searchValue);
     if (searchValue !== "") {
-      const filteredData = pokemon.filter(item => item.name.toLowerCase().startsWith(searchValue))
+      const filteredData = pokemon.filter((item) =>
+        item.name.toLowerCase().startsWith(searchValue)
+      );
       setFilter(filteredData);
     } else {
       setFilter(pokemon);
     }
-    console.log(filter)
+    console.log(filter);
   };
+
+  const filterItems = (searchValue) => {
+    if(searchValue == "grass"){
+      setFilterGrass(!filterGrass);
+    }else if(searchValue == "fire"){
+      setFilterFire(!filterFire);
+    }else if(searchValue == "water"){
+      setFilterWater(!filterWater);
+    }
+    if(searchValue == "grass" && filterGrass == false){
+      if(searchInput.length > 0){
+        console.log("here")
+        const filteredData = filter.filter((item) => item.types.includes("grass"));
+        setFilter(filteredData);
+      }else{
+        const filteredData = pokemon.filter((item) => item.types.includes("grass"));
+        setFilter(filteredData);
+      }
+    }else if(searchValue == "fire" && filterFire == false){
+      console.log("works")
+      if(searchInput.length > 0){
+        const filteredData = filter.filter((item) => item.types.includes("fire"));
+        setFilter(filteredData);
+      }else{
+        console.log("made it")
+        const filteredData = pokemon.filter((item) => item.types.includes("fire"));
+        setFilter(filteredData);
+      }
+    }else if(searchValue == "water" && filterWater == false){
+      console.log("works")
+      if(searchInput.length > 0){
+        const filteredData = filter.filter((item) => item.types.includes("water"));
+        setFilter(filteredData);
+      }else{
+        const filteredData = pokemon.filter((item) => item.types.includes("water"));
+        setFilter(filteredData);
+      }
+    }
+  }
 
   return (
     <div className="App">
@@ -97,8 +142,24 @@ function App() {
           <input
             id="searchBar"
             placeholder="Search"
-            onChange={(inputString) => searchItems(inputString.target.value.toLowerCase())}
+            onChange={(inputString) =>
+              searchItems(inputString.target.value.toLowerCase())
+            }
           ></input>
+        </div>
+        <div className="checkBoxSection">
+          <div className="checkboxGrass">
+            <input type={"checkbox"} id="grass" value="grass" onChange={(selectItem) => filterItems(selectItem.target.value)}></input>
+            <label for="grass">Grass</label>
+          </div>
+          <div className="checkboxFire">
+            <input type={"checkbox"} id="fire" value="fire" onChange={(selectItem) => filterItems(selectItem.target.value)}></input>
+            <label for="fire">Fire</label>
+          </div>
+          <div className="checkboxWater">
+            <input type={"checkbox"} id="water" value="water" onChange={(selectItem) => filterItems(selectItem.target.value)}></input>
+            <label for="grass">Water</label>
+          </div>
         </div>
       </div>
       <div className="lowerSection">
@@ -175,21 +236,31 @@ function App() {
           </div>
         </div>
         <div className="pokemonContainer">
-          {searchInput.length > 0 ? filter.map((pokemon) => {
-            return (
-              <div className="pokemon" key={pokemon.id} onClick={() => consolePokemon(pokemon.id)}>
-                <img src={pokemon.image} width={100} height={100}></img>
-                <h3 className="pokemonName">{pokemon.name}</h3>
-              </div>
-            );
-          }) : pokemon.map((pokemon) => {
-            return (
-              <div className="pokemon" key={pokemon.id} onClick={() => consolePokemon(pokemon.id)}>
-                <img src={pokemon.image} width={100} height={100}></img>
-                <h3 className="pokemonName">{pokemon.name}</h3>
-              </div>
-            );
-          })}
+          {searchInput.length > 0 || filterGrass == true || filterFire || filterWater
+            ? filter.map((pokemon) => {
+                return (
+                  <div
+                    className="pokemon"
+                    key={pokemon.id}
+                    onClick={() => consolePokemon(pokemon.id)}
+                  >
+                    <img src={pokemon.image} width={100} height={100}></img>
+                    <h3 className="pokemonName">{pokemon.name}</h3>
+                  </div>
+                );
+              })
+            : pokemon.map((pokemon) => {
+                return (
+                  <div
+                    className="pokemon"
+                    key={pokemon.id}
+                    onClick={() => consolePokemon(pokemon.id)}
+                  >
+                    <img src={pokemon.image} width={100} height={100}></img>
+                    <h3 className="pokemonName">{pokemon.name}</h3>
+                  </div>
+                );
+              })}
         </div>
       </div>
     </div>
